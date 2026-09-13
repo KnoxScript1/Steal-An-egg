@@ -1,0 +1,701 @@
+--==================================================
+--  DARK INVISIBLE UI
+--  Roblox Studio / Test Place
+--  Put this LocalScript inside StarterGui
+--==================================================
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+--==================================================
+-- CONFIG
+--==================================================
+
+local TITLE = "INVISIBLE"
+local SUBTITLE = "Stay hidden. Stay safe."
+
+-- If you upload your manga image to Roblox,
+-- put the asset ID here:
+local BACKGROUND_IMAGE = ""
+
+--==================================================
+-- COLORS
+--==================================================
+
+local BG = Color3.fromRGB(8, 8, 10)
+local PANEL = Color3.fromRGB(14, 14, 17)
+local CARD = Color3.fromRGB(20, 20, 24)
+local CARD2 = Color3.fromRGB(25, 25, 30)
+local TEXT = Color3.fromRGB(240, 240, 245)
+local SUBTEXT = Color3.fromRGB(145, 145, 155)
+local LINE = Color3.fromRGB(55, 55, 62)
+local WHITE = Color3.fromRGB(225, 225, 230)
+local DARK = Color3.fromRGB(30, 30, 35)
+
+--==================================================
+-- HELPERS
+--==================================================
+
+local function corner(parent, radius)
+	local c = Instance.new("UICorner")
+	c.CornerRadius = UDim.new(0, radius)
+	c.Parent = parent
+	return c
+end
+
+local function stroke(parent, color, thickness, transparency)
+	local s = Instance.new("UIStroke")
+	s.Color = color
+	s.Thickness = thickness or 1
+	s.Transparency = transparency or 0
+	s.Parent = parent
+	return s
+end
+
+local function tween(object, properties, duration)
+	return TweenService:Create(
+		object,
+		TweenInfo.new(duration or 0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
+		properties
+	)
+end
+
+--==================================================
+-- GUI
+--==================================================
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "InvisibleUI"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.Parent = playerGui
+
+--==================================================
+-- BACKGROUND
+--==================================================
+
+local background = Instance.new("ImageLabel")
+background.Name = "MangaBackground"
+background.Size = UDim2.fromScale(1, 1)
+background.Position = UDim2.fromScale(0, 0)
+background.BackgroundColor3 = BG
+background.BorderSizePixel = 0
+background.Image = BACKGROUND_IMAGE
+background.ImageTransparency = BACKGROUND_IMAGE == "" and 1 or 0.25
+background.ScaleType = Enum.ScaleType.Crop
+background.Parent = gui
+
+-- Dark overlay
+local overlay = Instance.new("Frame")
+overlay.Size = UDim2.fromScale(1, 1)
+overlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+overlay.BackgroundTransparency = 0.35
+overlay.BorderSizePixel = 0
+overlay.Parent = gui
+
+--==================================================
+-- OPEN BUTTON
+--==================================================
+
+local openButton = Instance.new("TextButton")
+openButton.Name = "OpenButton"
+openButton.Size = UDim2.fromOffset(175, 52)
+openButton.Position = UDim2.fromOffset(25, 30)
+openButton.BackgroundColor3 = Color3.fromRGB(17, 17, 20)
+openButton.BackgroundTransparency = 0.05
+openButton.Text = ""
+openButton.AutoButtonColor = false
+openButton.Parent = gui
+
+corner(openButton, 26)
+stroke(openButton, Color3.fromRGB(100, 100, 110), 1, 0.2)
+
+local menuIcon = Instance.new("TextLabel")
+menuIcon.Size = UDim2.fromOffset(48, 48)
+menuIcon.Position = UDim2.fromOffset(2, 2)
+menuIcon.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
+menuIcon.Text = "☰"
+menuIcon.TextColor3 = TEXT
+menuIcon.TextSize = 23
+menuIcon.Font = Enum.Font.GothamBold
+menuIcon.Parent = openButton
+corner(menuIcon, 24)
+
+local openText = Instance.new("TextLabel")
+openText.Size = UDim2.new(1, -58, 1, 0)
+openText.Position = UDim2.fromOffset(58, 0)
+openText.BackgroundTransparency = 1
+openText.Text = "Open Menu"
+openText.TextColor3 = TEXT
+openText.TextSize = 16
+openText.Font = Enum.Font.GothamMedium
+openText.TextXAlignment = Enum.TextXAlignment.Left
+openText.Parent = openButton
+
+--==================================================
+-- MAIN WINDOW
+--==================================================
+
+local window = Instance.new("Frame")
+window.Name = "MainWindow"
+window.Size = UDim2.fromOffset(760, 510)
+window.Position = UDim2.new(0.5, -380, 0.5, -255)
+window.BackgroundColor3 = PANEL
+window.BackgroundTransparency = 0.04
+window.BorderSizePixel = 0
+window.ClipsDescendants = true
+window.Parent = gui
+
+corner(window, 22)
+stroke(window, Color3.fromRGB(105, 105, 115), 1, 0.25)
+
+--==================================================
+-- DRAG HEADER
+--==================================================
+
+local header = Instance.new("Frame")
+header.Name = "Header"
+header.Size = UDim2.new(1, 0, 0, 95)
+header.BackgroundColor3 = Color3.fromRGB(10, 10, 13)
+header.BackgroundTransparency = 0.1
+header.BorderSizePixel = 0
+header.Active = true
+header.Parent = window
+
+-- Logo
+local logo = Instance.new("TextLabel")
+logo.Size = UDim2.fromOffset(70, 70)
+logo.Position = UDim2.fromOffset(15, 12)
+logo.BackgroundTransparency = 1
+logo.Text = "V"
+logo.TextColor3 = WHITE
+logo.TextSize = 48
+logo.Font = Enum.Font.GothamBlack
+logo.Parent = header
+
+-- Divider
+local divider = Instance.new("Frame")
+divider.Size = UDim2.fromOffset(1, 55)
+divider.Position = UDim2.fromOffset(90, 20)
+divider.BackgroundColor3 = LINE
+divider.BorderSizePixel = 0
+divider.Parent = header
+
+-- Title
+local title = Instance.new("TextLabel")
+title.Size = UDim2.fromOffset(250, 32)
+title.Position = UDim2.fromOffset(112, 19)
+title.BackgroundTransparency = 1
+title.Text = TITLE
+title.TextColor3 = TEXT
+title.TextSize = 19
+title.Font = Enum.Font.GothamBold
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = header
+
+local subtitle = Instance.new("TextLabel")
+subtitle.Size = UDim2.fromOffset(300, 25)
+subtitle.Position = UDim2.fromOffset(112, 48)
+subtitle.BackgroundTransparency = 1
+subtitle.Text = SUBTITLE
+subtitle.TextColor3 = SUBTEXT
+subtitle.TextSize = 12
+subtitle.Font = Enum.Font.Gotham
+subtitle.TextXAlignment = Enum.TextXAlignment.Left
+subtitle.Parent = header
+
+-- Close button
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.fromOffset(48, 48)
+closeButton.Position = UDim2.new(1, -62, 0, 23)
+closeButton.BackgroundTransparency = 1
+closeButton.Text = "×"
+closeButton.TextColor3 = TEXT
+closeButton.TextSize = 32
+closeButton.Font = Enum.Font.Gotham
+closeButton.AutoButtonColor = false
+closeButton.Parent = header
+
+--==================================================
+-- SIDEBAR
+--==================================================
+
+local sidebar = Instance.new("Frame")
+sidebar.Name = "Sidebar"
+sidebar.Size = UDim2.fromOffset(190, 415)
+sidebar.Position = UDim2.fromOffset(0, 95)
+sidebar.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
+sidebar.BackgroundTransparency = 0.1
+sidebar.BorderSizePixel = 0
+sidebar.Parent = window
+
+local sideLine = Instance.new("Frame")
+sideLine.Size = UDim2.fromOffset(1, 415)
+sideLine.Position = UDim2.new(1, 0, 0, 0)
+sideLine.BackgroundColor3 = LINE
+sideLine.BorderSizePixel = 0
+sideLine.Parent = sidebar
+
+--==================================================
+-- SIDEBAR BUTTON FUNCTION
+--==================================================
+
+local function createSideButton(text, icon, y, selected)
+
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.fromOffset(165, 52)
+	btn.Position = UDim2.fromOffset(12, y)
+	btn.BackgroundColor3 = selected and Color3.fromRGB(38, 38, 44)
+		or Color3.fromRGB(12, 12, 15)
+	btn.BackgroundTransparency = selected and 0 or 1
+	btn.Text = ""
+	btn.AutoButtonColor = false
+	btn.Parent = sidebar
+
+	corner(btn, 16)
+
+	local iconLabel = Instance.new("TextLabel")
+	iconLabel.Size = UDim2.fromOffset(40, 52)
+	iconLabel.Position = UDim2.fromOffset(8, 0)
+	iconLabel.BackgroundTransparency = 1
+	iconLabel.Text = icon
+	iconLabel.TextColor3 = selected and WHITE or SUBTEXT
+	iconLabel.TextSize = 20
+	iconLabel.Font = Enum.Font.Gotham
+	iconLabel.Parent = btn
+
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.new(1, -55, 1, 0)
+	label.Position = UDim2.fromOffset(52, 0)
+	label.BackgroundTransparency = 1
+	label.Text = text
+	label.TextColor3 = selected and TEXT or SUBTEXT
+	label.TextSize = 15
+	label.Font = Enum.Font.GothamMedium
+	label.TextXAlignment = Enum.TextXAlignment.Left
+	label.Parent = btn
+
+	btn.MouseEnter:Connect(function()
+		if not selected then
+			tween(btn, {
+				BackgroundTransparency = 0,
+				BackgroundColor3 = Color3.fromRGB(25, 25, 29)
+			}, 0.15):Play()
+		end
+	end)
+
+	btn.MouseLeave:Connect(function()
+		if not selected then
+			tween(btn, {
+				BackgroundTransparency = 1
+			}, 0.15):Play()
+		end
+	end)
+
+	return btn
+end
+
+createSideButton("Main", "⌂", 25, true)
+createSideButton("Settings", "⚙", 85, false)
+createSideButton("Info", "ⓘ", 145, false)
+
+--==================================================
+-- MAIN CONTENT
+--==================================================
+
+local content = Instance.new("Frame")
+content.Name = "Content"
+content.Size = UDim2.new(1, -190, 1, -95)
+content.Position = UDim2.fromOffset(190, 95)
+content.BackgroundTransparency = 1
+content.Parent = window
+
+--==================================================
+-- INVISIBLE CARD
+--==================================================
+
+local invisibleCard = Instance.new("Frame")
+invisibleCard.Size = UDim2.new(1, -45, 0, 145)
+invisibleCard.Position = UDim2.fromOffset(22, 25)
+invisibleCard.BackgroundColor3 = CARD
+invisibleCard.BorderSizePixel = 0
+invisibleCard.Parent = content
+
+corner(invisibleCard, 20)
+stroke(invisibleCard, Color3.fromRGB(50, 50, 58), 1, 0.35)
+
+-- Icon circle
+local eyeCircle = Instance.new("Frame")
+eyeCircle.Size = UDim2.fromOffset(50, 50)
+eyeCircle.Position = UDim2.fromOffset(20, 20)
+eyeCircle.BackgroundColor3 = Color3.fromRGB(55, 55, 65)
+eyeCircle.Parent = invisibleCard
+
+corner(eyeCircle, 25)
+
+local eye = Instance.new("TextLabel")
+eye.Size = UDim2.fromScale(1, 1)
+eye.BackgroundTransparency = 1
+eye.Text = "◉"
+eye.TextColor3 = WHITE
+eye.TextSize = 22
+eye.Font = Enum.Font.GothamBold
+eye.Parent = eyeCircle
+
+-- Title
+local invisibleTitle = Instance.new("TextLabel")
+invisibleTitle.Size = UDim2.fromOffset(250, 30)
+invisibleTitle.Position = UDim2.fromOffset(85, 20)
+invisibleTitle.BackgroundTransparency = 1
+invisibleTitle.Text = "Invisible"
+invisibleTitle.TextColor3 = TEXT
+invisibleTitle.TextSize = 20
+invisibleTitle.Font = Enum.Font.GothamBold
+invisibleTitle.TextXAlignment = Enum.TextXAlignment.Left
+invisibleTitle.Parent = invisibleCard
+
+-- Description
+local description = Instance.new("TextLabel")
+description.Size = UDim2.fromOffset(340, 50)
+description.Position = UDim2.fromOffset(85, 52)
+description.BackgroundTransparency = 1
+description.Text = "Toggle your character's visibility\nin your local Studio test place."
+description.TextColor3 = SUBTEXT
+description.TextSize = 13
+description.Font = Enum.Font.Gotham
+description.TextWrapped = true
+description.TextXAlignment = Enum.TextXAlignment.Left
+description.TextYAlignment = Enum.TextYAlignment.Top
+description.Parent = invisibleCard
+
+--==================================================
+-- TOGGLE
+--==================================================
+
+local toggle = Instance.new("TextButton")
+toggle.Size = UDim2.fromOffset(115, 52)
+toggle.Position = UDim2.new(1, -140, 0.5, -26)
+toggle.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+toggle.Text = ""
+toggle.AutoButtonColor = false
+toggle.Parent = invisibleCard
+
+corner(toggle, 26)
+stroke(toggle, Color3.fromRGB(75, 75, 85), 1, 0.25)
+
+local toggleCircle = Instance.new("Frame")
+toggleCircle.Size = UDim2.fromOffset(38, 38)
+toggleCircle.Position = UDim2.fromOffset(7, 7)
+toggleCircle.BackgroundColor3 = Color3.fromRGB(185, 185, 195)
+toggleCircle.Parent = toggle
+
+corner(toggleCircle, 19)
+
+local toggleText = Instance.new("TextLabel")
+toggleText.Size = UDim2.fromOffset(55, 52)
+toggleText.Position = UDim2.fromOffset(55, 0)
+toggleText.BackgroundTransparency = 1
+toggleText.Text = "OFF"
+toggleText.TextColor3 = TEXT
+toggleText.TextSize = 14
+toggleText.Font = Enum.Font.GothamBold
+toggleText.Parent = toggle
+
+--==================================================
+-- STATUS CARD
+--==================================================
+
+local statusCard = Instance.new("Frame")
+statusCard.Size = UDim2.new(1, -45, 0, 90)
+statusCard.Position = UDim2.fromOffset(22, 190)
+statusCard.BackgroundColor3 = CARD
+statusCard.BorderSizePixel = 0
+statusCard.Parent = content
+
+corner(statusCard, 18)
+stroke(statusCard, Color3.fromRGB(45, 45, 52), 1, 0.4)
+
+local statusIcon = Instance.new("TextLabel")
+statusIcon.Size = UDim2.fromOffset(55, 90)
+statusIcon.Position = UDim2.fromOffset(18, 0)
+statusIcon.BackgroundTransparency = 1
+statusIcon.Text = "♙"
+statusIcon.TextColor3 = TEXT
+statusIcon.TextSize = 28
+statusIcon.Font = Enum.Font.Gotham
+statusIcon.Parent = statusCard
+
+local statusTitle = Instance.new("TextLabel")
+statusTitle.Size = UDim2.fromOffset(200, 30)
+statusTitle.Position = UDim2.fromOffset(75, 18)
+statusTitle.BackgroundTransparency = 1
+statusTitle.Text = "Status"
+statusTitle.TextColor3 = TEXT
+statusTitle.TextSize = 17
+statusTitle.Font = Enum.Font.GothamBold
+statusTitle.TextXAlignment = Enum.TextXAlignment.Left
+statusTitle.Parent = statusCard
+
+local statusDescription = Instance.new("TextLabel")
+statusDescription.Size = UDim2.fromOffset(300, 25)
+statusDescription.Position = UDim2.fromOffset(75, 48)
+statusDescription.BackgroundTransparency = 1
+statusDescription.Text = "You are not invisible."
+statusDescription.TextColor3 = SUBTEXT
+statusDescription.TextSize = 12
+statusDescription.Font = Enum.Font.Gotham
+statusDescription.TextXAlignment = Enum.TextXAlignment.Left
+statusDescription.Parent = statusCard
+
+-- Status pill
+local statusPill = Instance.new("Frame")
+statusPill.Size = UDim2.fromOffset(95, 38)
+statusPill.Position = UDim2.new(1, -115, 0.5, -19)
+statusPill.BackgroundColor3 = Color3.fromRGB(38, 38, 45)
+statusPill.Parent = statusCard
+
+corner(statusPill, 19)
+
+local statusDot = Instance.new("Frame")
+statusDot.Size = UDim2.fromOffset(10, 10)
+statusDot.Position = UDim2.fromOffset(13, 14)
+statusDot.BackgroundColor3 = Color3.fromRGB(165, 165, 175)
+statusDot.Parent = statusPill
+
+corner(statusDot, 5)
+
+local statusText = Instance.new("TextLabel")
+statusText.Size = UDim2.fromOffset(65, 38)
+statusText.Position = UDim2.fromOffset(28, 0)
+statusText.BackgroundTransparency = 1
+statusText.Text = "Normal"
+statusText.TextColor3 = TEXT
+statusText.TextSize = 12
+statusText.Font = Enum.Font.GothamMedium
+statusText.Parent = statusPill
+
+--==================================================
+-- FOOTER
+--==================================================
+
+local footer = Instance.new("TextLabel")
+footer.Size = UDim2.fromOffset(180, 35)
+footer.Position = UDim2.new(0, 25, 1, -55)
+footer.BackgroundTransparency = 1
+footer.Text = "STAY\nHIDDEN"
+footer.TextColor3 = Color3.fromRGB(105, 105, 115)
+footer.TextSize = 17
+footer.Font = Enum.Font.GothamBold
+footer.TextXAlignment = Enum.TextXAlignment.Left
+footer.Parent = sidebar
+
+--==================================================
+-- INVISIBILITY
+--==================================================
+
+local invisible = false
+
+local function setInvisible(state)
+
+	invisible = state
+
+	local character = player.Character
+
+	if character then
+
+		for _, object in ipairs(character:GetDescendants()) do
+
+			if object:IsA("BasePart") then
+				object.LocalTransparencyModifier = state and 1 or 0
+
+			elseif object:IsA("Decal") then
+				object.Transparency = state and 1 or 0
+
+			elseif object:IsA("Texture") then
+				object.Transparency = state and 1 or 0
+
+			end
+
+		end
+
+	end
+
+	-- Toggle animation
+	if state then
+
+		tween(toggleCircle, {
+			Position = UDim2.fromOffset(70, 7)
+		}, 0.2):Play()
+
+		tween(toggle, {
+			BackgroundColor3 = Color3.fromRGB(70, 70, 78)
+		}, 0.2):Play()
+
+		toggleText.Text = "ON"
+
+		statusText.Text = "Hidden"
+		statusDescription.Text = "You are currently invisible."
+
+		statusDot.BackgroundColor3 = Color3.fromRGB(220, 220, 225)
+
+	else
+
+		tween(toggleCircle, {
+			Position = UDim2.fromOffset(7, 7)
+		}, 0.2):Play()
+
+		tween(toggle, {
+			BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+		}, 0.2):Play()
+
+		toggleText.Text = "OFF"
+
+		statusText.Text = "Normal"
+		statusDescription.Text = "You are not invisible."
+
+		statusDot.BackgroundColor3 = Color3.fromRGB(165, 165, 175)
+
+	end
+end
+
+toggle.MouseButton1Click:Connect(function()
+	setInvisible(not invisible)
+end)
+
+--==================================================
+-- RESPAWN
+--==================================================
+
+player.CharacterAdded:Connect(function()
+
+	task.wait(1)
+
+	if invisible then
+		setInvisible(true)
+	end
+
+end)
+
+--==================================================
+-- OPEN / CLOSE
+--==================================================
+
+closeButton.MouseButton1Click:Connect(function()
+
+	tween(window, {
+		Size = UDim2.fromOffset(700, 470)
+	}, 0.2):Play()
+
+	task.wait(0.15)
+
+	window.Visible = false
+	openButton.Visible = true
+
+end)
+
+openButton.MouseButton1Click:Connect(function()
+
+	window.Visible = true
+	openButton.Visible = false
+
+	window.Size = UDim2.fromOffset(700, 470)
+
+	tween(window, {
+		Size = UDim2.fromOffset(760, 510)
+	}, 0.25):Play()
+
+end)
+
+--==================================================
+-- DRAGGING
+--==================================================
+
+local dragging = false
+local dragStart
+local startPosition
+
+header.InputBegan:Connect(function(input)
+
+	if input.UserInputType == Enum.UserInputType.MouseButton1
+		or input.UserInputType == Enum.UserInputType.Touch then
+
+		dragging = true
+		dragStart = input.Position
+		startPosition = window.Position
+
+	end
+
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+
+	if not dragging then
+		return
+	end
+
+	if input.UserInputType == Enum.UserInputType.MouseMovement
+		or input.UserInputType == Enum.UserInputType.Touch then
+
+		local delta = input.Position - dragStart
+
+		window.Position = UDim2.new(
+			startPosition.X.Scale,
+			startPosition.X.Offset + delta.X,
+			startPosition.Y.Scale,
+			startPosition.Y.Offset + delta.Y
+		)
+
+	end
+
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+
+	if input.UserInputType == Enum.UserInputType.MouseButton1
+		or input.UserInputType == Enum.UserInputType.Touch then
+
+		dragging = false
+
+	end
+
+end)
+
+--==================================================
+-- BUTTON HOVER EFFECTS
+--==================================================
+
+toggle.MouseEnter:Connect(function()
+	tween(toggle, {
+		BackgroundColor3 = Color3.fromRGB(42, 42, 48)
+	}, 0.15):Play()
+end)
+
+toggle.MouseLeave:Connect(function()
+
+	if invisible then
+		tween(toggle, {
+			BackgroundColor3 = Color3.fromRGB(70, 70, 78)
+		}, 0.15):Play()
+	else
+		tween(toggle, {
+			BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+		}, 0.15):Play()
+	end
+
+end)
+
+closeButton.MouseEnter:Connect(function()
+	closeButton.TextColor3 = Color3.fromRGB(190, 190, 195)
+end)
+
+closeButton.MouseLeave:Connect(function()
+	closeButton.TextColor3 = TEXT
+end)
+
+-- Start with menu open
+openButton.Visible = false
+window.Visible = true
