@@ -1,0 +1,75 @@
+-- LocalScript inside StarterGui
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "SimpleInvisibleUI"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+-- Open/Close button
+local openButton = Instance.new("TextButton")
+openButton.Size = UDim2.fromOffset(120, 40)
+openButton.Position = UDim2.new(0, 20, 0.5, -20)
+openButton.Text = "Open Menu"
+openButton.Parent = gui
+
+-- Main window
+local frame = Instance.new("Frame")
+frame.Size = UDim2.fromOffset(250, 150)
+frame.Position = UDim2.new(0.5, -125, 0.5, -75)
+frame.Visible = true
+frame.Parent = gui
+
+-- Close button
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.fromOffset(40, 30)
+closeButton.Position = UDim2.new(1, -45, 0, 5)
+closeButton.Text = "X"
+closeButton.Parent = frame
+
+-- Invisible toggle
+local invisibleButton = Instance.new("TextButton")
+invisibleButton.Size = UDim2.fromOffset(200, 50)
+invisibleButton.Position = UDim2.new(0.5, -100, 0.5, -25)
+invisibleButton.Text = "Invisible: OFF"
+invisibleButton.Parent = frame
+
+local invisible = false
+
+local function setInvisible(state)
+	invisible = state
+
+	local character = player.Character
+	if not character then return end
+
+	for _, object in ipairs(character:GetDescendants()) do
+		if object:IsA("BasePart") then
+			object.LocalTransparencyModifier = state and 1 or 0
+		elseif object:IsA("Decal") then
+			object.Transparency = state and 1 or 0
+		end
+	end
+
+	invisibleButton.Text = state and "Invisible: ON" or "Invisible: OFF"
+end
+
+invisibleButton.MouseButton1Click:Connect(function()
+	setInvisible(not invisible)
+end)
+
+closeButton.MouseButton1Click:Connect(function()
+	frame.Visible = false
+	openButton.Visible = true
+end)
+
+openButton.MouseButton1Click:Connect(function()
+	frame.Visible = true
+	openButton.Visible = false
+end)
+
+player.CharacterAdded:Connect(function()
+	task.wait(1)
+	setInvisible(invisible)
+end)
